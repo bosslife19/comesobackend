@@ -65,9 +65,10 @@ class AuthController extends Controller
             return response()->json(['token' => $token, 'user' => $user], 200);
         } catch (\Exception $e) {
             \Log::info($e);
-            if ($e->getCode() === '23000') {
-                return response()->json(['message' => 'Email already exists, please login instead.'], 422);
-            }
+            return response()->json(['error'=>$e->getMessage()]);
+            // if ($e->getCode() === '23000') {
+            //     return response()->json(['message' => 'Email already exists, please login instead.'], 422);
+            // }
         }
     }
 
