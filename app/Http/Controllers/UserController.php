@@ -51,6 +51,9 @@ class UserController extends Controller
         $user->name = $request->name;
         $user->phone = $request->phone;
         $user->email = $request->email;
+        if($request->currency){
+            $user->currency = $request->currency;
+        }
         $user->save();
 
         return response()->json(['status' => true], 200);

@@ -40,6 +40,7 @@ class AuthController extends Controller
                     'email' => $data['email'],
                     'phone' => $data['phone'],
                     'password' => bcrypt($data['password']),
+                    'currency'=>$request['currency'],
                     'balance' => 0
                 ]);
                 $bene = Beneficiary::where('phone', $user->phone)->first();
