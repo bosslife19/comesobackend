@@ -118,7 +118,7 @@ class UserController extends Controller
             try {
                 $sendMessage = Http::get("https://sms.arkesel.com/sms/api?action=send-sms&api_key=$smsKey&to=$receipient->phone&from=COMESO&sms=$textMessage");
             } catch (\Throwable $th) {
-                \Log::info($th);
+               
                 return response()->json(['error', 'Phone number is not valid']);
             }
 
@@ -158,7 +158,7 @@ class UserController extends Controller
             try {
                 $sendMessage = Http::get("https://sms.arkesel.com/sms/api?action=send-sms&api_key=$smsKey&to=$user->phone&from=COMESO&sms=Hi $user->name, you have sent GHS$amount to $receipient->name ($receipient->phone) Balance=GHS$user->balance");
             } catch (\Throwable $th) {
-                \Log::info($th);
+
                 return response()->json(['error', 'Phone number is not valid']);
             }
         } else {
@@ -181,7 +181,7 @@ class UserController extends Controller
                 try {
                     $sendMessage = Http::get("https://sms.arkesel.com/sms/api?action=send-sms&api_key=$smsKey&to=$receipient->phone&from=COMESO&sms=Hi $receipient->name, you have received $amount from $user->name ($user->phone) Balance=GHS$receipient->balance. Download the app here https://apps.apple.com/app/comeso/id6740334829 and create your account on COMESO");
                 } catch (\Throwable $th) {
-                    \Log::info($th);
+
                     return response()->json(['error', 'Phone number is not valid']);
                 }
 
@@ -207,7 +207,7 @@ class UserController extends Controller
                 try {
                     $sendMessage = Http::get("https://sms.arkesel.com/sms/api?action=send-sms&api_key=$smsKey&to=$user->phone&from=COMESO&sms=Hi $user->name, you have sent GHS$amount to $receipient->name ($receipient->phone) Balance=GHS$user->balance");
                 } catch (\Throwable $th) {
-                    \Log::info($th);
+
                     return response()->json(['status' => true]);
                 }
 
@@ -236,7 +236,7 @@ class UserController extends Controller
         try {
             $sendMessage = Http::get("https://sms.arkesel.com/sms/api?action=send-sms&api_key=$smsKey&to=$beneficiary->phone&from=COMESO&sms=Hi $beneficiary->name, you have been successfully added as a beneficiary to $user->name on COMESO. $user->name can now send you funds for medical treatments!");
         } catch (\Throwable $th) {
-            \Log::info($th);
+
             $bene->delete();
             return response()->json(['error' => 'Beneficiary Phone number is not valid',]);
         }
@@ -420,6 +420,16 @@ class UserController extends Controller
         }
     }
 
+    public function getUserByAccountNumber(Request $request){
+        $request->validate(['accountNumber'=>'required']);
+        $user = User::where('account_number', $request->accountNumber)->first();
+
+        if($user){
+            return response()->json(['user'=>$user], 200);
+        }
+        return response()->json(['error'=>'User with this account number not found']);
+    }
+
     public function changePassword(Request $request)
     {
         $request->validate(['password' => 'required']);
@@ -458,7 +468,7 @@ class UserController extends Controller
         try {
             $sendMessage = Http::get("https://sms.arkesel.com/sms/api?action=send-sms&api_key=$smsKey&to=$user->phone&from=COMESO&sms=Hi $user->name, you have received successfully topped up your voucher with $request->amount. Your new Balance=GHS$user->balance");
         } catch (\Throwable $th) {
-            \Log::info($th);
+
             return response()->json(['status' => true]);
         }
     }
@@ -509,7 +519,7 @@ class UserController extends Controller
                 $sendMessage = Http::get("https://sms.arkesel.com/sms/api?action=send-sms&api_key=$smsKey&to=$user->phone&from=COMESO&sms=Hi $user->name, you have paid GHC $request->amount at $hospital->name ($hospital->phone). Your Balance=GHC$user->balance");
                 $sendMessages = Http::get("https://sms.arkesel.com/sms/api?action=send-sms&api_key=$smsKey&to=$hospital->phone&from=COMESO&sms=Hi $hospital->name, you have successfully collected GHC $request->amount at $user->name ($user->phone). Your Balance=GHC$hospital->balance");
                 } catch (\Throwable $th) {
-                    \Log::info($th);
+                   
                     return response()->json(['status' => true], 200);
                     
                 }
@@ -552,7 +562,7 @@ class UserController extends Controller
                 $sendMessage = Http::get("https://sms.arkesel.com/sms/api?action=send-sms&api_key=$smsKey&to=$user->phone&from=COMESO&sms=Hi $user->name, you have paid GHC $request->amount at $hospital->name ($hospital->phone). Your Balance=GHC$user->balance");
                 $sendMessagess = Http::get("https://sms.arkesel.com/sms/api?action=send-sms&api_key=$smsKey&to=$hospital->phone&from=COMESO&sms=Hi $hospital->name, you have successfully collected GHC $request->amount at $user->name ($user->phone). Your Balance=GHC$hospital->balance");
                 } catch (\Throwable $th) {
-                    \Log::info($th);
+
                     return response()->json(['error' => 'error']);
                     
                 }
@@ -582,7 +592,7 @@ class UserController extends Controller
             try {
             $sendMessage = Http::get("https://sms.arkesel.com/sms/api?action=send-sms&api_key=$smsKey&to=$user->phone&from=COMESO&sms=Your One time password for this transaction is: $otp");
             } catch (\Throwable $th) {
-                \Log::info($th);
+
                 return response()->json(['error'=>'Failed to send otp']);
             }
             return response()->json(['user' => $user], 200);
@@ -599,7 +609,7 @@ class UserController extends Controller
             try {
             $sendMessage = Http::get("https://sms.arkesel.com/sms/api?action=send-sms&api_key=$smsKey&to=$user->phone&from=COMESO&sms=Your One time password for this transaction is: $otp");
             } catch (\Throwable $th) {
-                \Log::info($th);
+
                 return response()->json(['error'=>'failed to send otp']);
                 
             }

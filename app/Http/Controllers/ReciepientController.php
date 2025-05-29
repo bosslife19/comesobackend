@@ -23,6 +23,11 @@ class ReciepientController extends Controller
         $request->validate(['accountNumber' => 'required']);
         $recipient = Reciepient::where('account_number', $request->accountNumber)->first();
 
-        return response()->json(['recipient' => $recipient, 'status' => true], 200);
+        if($recipient){
+return response()->json(['recipient' => $recipient, 'status' => true], 200);
+        }
+        return response()->json(['error'=>'Recipient not found', 'recipient'=>null]);
+
+        
     }
 }
