@@ -81,6 +81,15 @@ class AuthController extends Controller
             'password' => 'required'
         ]);
 
+        $userExists = User::where('email', $request->email)->first();
+
+        if($userExists){
+            $company = $userExists->company_name;
+            if($company){
+                return response()->json(['error'=>'This is an institution account. Please login at mycomeso.com']);
+            }
+        }
+
         if (!Auth::attempt($credentials)) {
             return response([
                 'message' => 'Provided email address or password is incorrect'

@@ -246,6 +246,61 @@ class UserController extends Controller
         return response()->json(['status' => true], 200);
     }
 
+    public function setPushToken(Request $request){
+        $request->validate(['token'=>'required']);
+        $user = $request->user();
+        $user->push_token = $request->token;
+      
+        $user->save();
+        return response()->json(['status'=>true]);
+    }
+
+    public function sendPushNotifications(Request $request){
+        {
+        $request->validate([
+            'title' => 'required|string',
+            'body' => 'required|string',
+        ]);
+
+        // Get users with push tokens
+        $users = \App\Models\User::whereNotNull('push_token')->get();
+
+        $tokens = $users
+            ->pluck('push_token')
+            ->filter(fn($token) => str_starts_with($token, 'ExponentPushToken'))
+            ->values()
+            ->all();
+
+        if (empty($tokens)) {
+            return response()->json(['message' => 'No valid push tokens found'], 400);
+        }
+
+        // Chunk into batches of 100
+        $chunks = array_chunk($tokens, 100);
+        $allResponses = [];
+
+        foreach ($chunks as $chunk) {
+            $messages = array_map(fn($token) => [
+                'to' => $token,
+                'title' => $request->title,
+                'body' => $request->body,
+            ], $chunk);
+
+            $response = Http::withHeaders([
+                'Accept' => 'application/json',
+                'Accept-Encoding' => 'gzip, deflate',
+            ])->post('https://exp.host/--/api/v2/push/send', $messages);
+
+            $allResponses[] = $response->json();
+        }
+
+        return response()->json([
+            'message' => 'Push notifications sent!',
+            'responses' => $allResponses,
+        ]);
+    }
+    }
+
     public function getMessage($id)
     {
         $message = Message::where('id', $id)->get();

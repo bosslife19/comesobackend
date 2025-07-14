@@ -50,9 +50,10 @@ Route::post('/user/delete', [UserController::class, 'deleteUser'])->middleware('
 Route::get('/messages/{id}', [UserController::class, 'getMessage'])->middleware('auth:sanctum');
 Route::get('/user/payouts', [UserController::class, 'getPayouts'])->middleware('auth:sanctum');
 Route::get('/user/admins', [UserController::class, 'getAdmins'])->middleware('auth:sanctum');
-
+Route::post('/user-push-token', [UserController::class, 'setPushToken'])->middleware('auth:sanctum');
+Route::middleware('auth:sanctum')->post('/send-push-notifications', [UserController::class, 'sendPushNotifications']);
 Route::post('/update-payment-request', [UserController::class, 'updateRequest'])->middleware('auth:sanctum');
-// Route::post('/user/update-user', [UserController::class, 'updateUser'])->middleware('auth:sanctum');
+ Route::post('/user/update-user', [UserController::class, 'updateUser'])->middleware('auth:sanctum');
 Route::post('/user/check-password', [UserController::class, 'checkPassword'])->middleware('auth:sanctum');
 Route::post('/user/upload-details', [UserController::class, 'uploadDetails'])->middleware('auth:sanctum');
 Route::post('/user/update-profile', [UserController::class, 'updateProfile'])->middleware('auth:sanctum');
@@ -74,6 +75,14 @@ Route::get('/payout-requests/all',function(){
 
     return response()->json(['requests'=>$requests]);
 } )->middleware('auth:sanctum');
+
+Route::get('/users-with-push-tokens', function () {
+    return response()->json(
+            User::whereNotNull('push_token')
+                ->select('id', 'push_token') // minimize data sent
+                ->get()
+        );
+})->middleware('auth:sanctum');
 
 Route::post('/send-otp', [AuthController::class, 'sendOtp']);
 Route::post('/verify-email', [AuthController::class,'verifyOtp']);
